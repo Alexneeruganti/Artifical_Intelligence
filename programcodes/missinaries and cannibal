@@ -1,0 +1,61 @@
+from collections import deque
+
+# Define the starting and goal states
+start_state = (3, 3, 1)  # (missionaries, cannibals, boat) on the left side
+goal_state = (0, 0, 0)   # All on the right side
+
+# Define possible moves: (missionaries, cannibals) in the boat
+moves = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1)]
+
+def is_valid(state):
+    m_left, c_left, boat = state
+    m_right, c_right = 3 - m_left, 3 - c_left
+    
+    # Check for invalid conditions on both sides
+    if m_left < 0 or m_left > 3 or c_left < 0 or c_left > 3:
+        return False
+    if m_right < 0 or m_right > 3 or c_right < 0 or c_right > 3:
+        return False
+    if (m_left > 0 and m_left < c_left) or (m_right > 0 and m_right < c_right):
+        return False
+    return True
+
+def bfs():
+    queue = deque([(start_state, [])])  # (current_state, path taken)
+    visited = set()
+    visited.add(start_state)
+
+    while queue:
+        current_state, path = queue.popleft()
+        
+        if current_state == goal_state:
+            return path + [current_state]  # Goal reached
+        
+        m_left, c_left, boat = current_state
+        
+        for m_move, c_move in moves:
+            if boat == 1:  # Boat is on the left side
+                new_state = (m_left - m_move, c_left - c_move, 0)
+            else:          # Boat is on the right side
+                new_state = (m_left + m_move, c_left + c_move, 1)
+            
+            if is_valid(new_state) and new_state not in visited:
+                visited.add(new_state)
+                queue.append((new_state, path + [current_state]))
+
+    return None  # No solution found
+
+# Run the BFS to get the solution path
+solution_path = bfs()
+
+# Print the solution path
+if solution_path:
+    for i, state in enumerate(solution_path):
+        left_side = f"Left -> Missionaries: {state[0]}, Cannibals: {state[1]}, Boat: {'Yes' if state[2] == 1 else 'No'}"
+        right_side = f"Right -> Missionaries: {3 - state[0]}, Cannibals: {3 - state[1]}"
+        print(f"Step {i}:")
+        print(left_side)
+        print(right_side)
+        print("-" * 40)
+else:
+    print("No solution found.")
