@@ -1,0 +1,69 @@
+import heapq
+
+class Puzzle:
+    def __init__(self, start, goal):
+        self.start = start
+        self.goal = goal
+        self.size = int(len(start) ** 0.5)
+        self.moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
+
+    # Manhattan distance heuristic
+    def manhattan(self, state):
+        distance = 0
+        for i, tile in enumerate(state):
+            if tile == 0:
+                continue
+            goal_x, goal_y = divmod(tile - 1, self.size)
+            curr_x, curr_y = divmod(i, self.size)
+            distance += abs(goal_x - curr_x) + abs(goal_y - curr_y)
+        return distance
+
+    # Find neighboring states
+    def neighbors(self, state):
+        neighbors = []
+        zero_index = state.index(0)
+        x, y = divmod(zero_index, self.size)
+
+        for dx, dy in self.moves:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < self.size and 0 <= ny < self.size:
+                new_index = nx * self.size + ny
+                new_state = list(state)
+                new_state[zero_index], new_state[new_index] = new_state[new_index], new_state[zero_index]
+                neighbors.append(tuple(new_state))
+        return neighbors
+
+    # A* search algorithm
+    def a_star_search(self):
+        open_list = []
+        heapq.heappush(open_list, (self.manhattan(self.start), 0, self.start, []))
+        seen = {self.start}
+
+        while open_list:
+            _, g, current_state, path = heapq.heappop(open_list)
+
+            if current_state == self.goal:
+                return path + [current_state]
+
+            for neighbor in self.neighbors(current_state):
+                if neighbor not in seen:
+                    seen.add(neighbor)
+                    f = g + 1 + self.manhattan(neighbor)
+                    heapq.heappush(open_list, (f, g + 1, neighbor, path + [current_state]))
+        return None
+
+# Example usage
+start = (2, 8, 3, 1, 6, 4, 7, 0, 5)  # Initial state
+goal = (1, 2, 3, 8, 0, 4, 7, 6, 5)   # Goal state
+
+puzzle = Puzzle(start, goal)
+solution = puzzle.a_star_search()
+
+# Print solution steps
+if solution:
+    for step in solution:
+        for i in range(0, len(step), 3):
+            print(step[i:i+3])
+        print()
+else:
+    print("No solution found.")
