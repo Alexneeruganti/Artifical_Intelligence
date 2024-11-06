@@ -1,0 +1,38 @@
+from itertools import permutations
+
+def solve_cryptarithm(puzzle, words):
+    letters = sorted(set("".join(words)))  # All unique letters in the puzzle
+    if len(letters) > 10:
+        return "Too many unique letters, cannot map to 10 digits."
+
+    # Try all possible digit permutations for the letters
+    for perm in permutations(range(10), len(letters)):
+        # Create a mapping from letters to digits
+        letter_to_digit = dict(zip(letters, perm))
+
+        # Convert words to numbers based on the current letter-to-digit mapping
+        values = []
+        for word in words:
+            if letter_to_digit[word[0]] == 0:  # No leading zeros allowed
+                break
+            num = int("".join(str(letter_to_digit[letter]) for letter in word))
+            values.append(num)
+        else:
+            # Check if the expression holds
+            if eval(puzzle.format(*values)):
+                return letter_to_digit
+
+    return "No solution found."
+
+# Example Usage
+# Puzzle: SEND + MORE = MONEY
+puzzle = "{} + {} == {}"  # The format string for the equation
+words = ["SEND", "MORE", "MONEY"]  # Words in the equation
+
+solution = solve_cryptarithm(puzzle, words)
+if solution == "No solution found." or solution == "Too many unique letters, cannot map to 10 digits.":
+    print(solution)
+else:
+    print("Solution found:")
+    for letter, digit in solution.items():
+        print(f"{letter} = {digit}")
