@@ -1,0 +1,40 @@
+class VacuumCleaner:
+    def __init__(self, initial_state):
+        # initial_state is a dictionary with the cleanliness of each location and the vacuum's starting location
+        self.state = initial_state  # Example: {'A': 'dirty', 'B': 'clean', 'vacuum': 'A'}
+
+    def is_clean(self):
+        # Check if all locations are clean
+        return self.state['A'] == 'clean' and self.state['B'] == 'clean'
+
+    def clean_location(self):
+        # Clean the current location
+        location = self.state['vacuum']
+        if self.state[location] == 'dirty':
+            print(f"Cleaning location {location}.")
+            self.state[location] = 'clean'
+
+    def move_to_other_location(self):
+        # Move to the other location
+        current_location = self.state['vacuum']
+        new_location = 'B' if current_location == 'A' else 'A'
+        print(f"Moving from {current_location} to {new_location}.")
+        self.state['vacuum'] = new_location
+
+    def run(self):
+        # Run the vacuum cleaner agent until both locations are clean
+        steps = 0
+        while not self.is_clean():
+            print(f"Step {steps + 1}: Current state: {self.state}")
+            self.clean_location()
+            if not self.is_clean():
+                self.move_to_other_location()
+            steps += 1
+
+        print(f"All locations are clean. Final state: {self.state}")
+        print(f"Total steps taken: {steps}")
+
+# Example usage
+initial_state = {'A': 'dirty', 'B': 'dirty', 'vacuum': 'A'}
+vacuum = VacuumCleaner(initial_state)
+vacuum.run()
