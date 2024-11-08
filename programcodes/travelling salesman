@@ -1,0 +1,37 @@
+import itertools
+
+def calculate_distance(points, order):
+    """Calculate the total distance for a given order of points."""
+    total_distance = 0
+    num_points = len(order)
+    for i in range(num_points):
+        point1 = points[order[i]]
+        point2 = points[order[(i + 1) % num_points]]
+        total_distance += calculate_distance_between_points(point1, point2)
+    return total_distance
+
+def calculate_distance_between_points(point1, point2):
+    """Calculate Euclidean distance between two points."""
+    return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
+
+def tsp_bruteforce(points):
+    """Solve TSP using brute force approach."""
+    min_distance = float('inf')
+    optimal_order = None
+
+    num_points = len(points)
+    # Generate all possible orders (permutations)
+    for order in itertools.permutations(range(num_points)):
+        distance = calculate_distance(points, order)
+        if distance < min_distance:
+            min_distance = distance
+            optimal_order = order
+
+    return min_distance, optimal_order
+
+# Example usage
+points = [(0, 0), (2, 3), (5, 4), (7, 1)]
+min_distance, optimal_order = tsp_bruteforce(points)
+
+print("The minimum distance is:", min_distance)
+print("The optimal order to visit the cities is:", optimal_order)
